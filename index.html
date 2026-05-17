@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Websday — Vi bygger webb som är omöjlig att ignorera</title>
+<meta name="description" content="Premium webbyrå i Stockholm. Sajter som konverterar, imponerar och växer med ditt företag.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Syne:wght@400;600;700;800&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --black:  #05060a;
+  --deep:   #0a0c13;
+  --surf:   #11141c;
+  --g0: rgba(255,255,255,0.025);
+  --g1: rgba(255,255,255,0.05);
+  --g2: rgba(255,255,255,0.08);
+  --g3: rgba(255,255,255,0.12);
+  --gl:  rgba(255,255,255,0.07);
+  --gl2: rgba(255,255,255,0.045);
+  --white: #ffffff;
+  --off:   #e3e8f5;
+  --dim:   rgba(255,255,255,0.5);
+  --muted: rgba(255,255,255,0.26);
+  --ice:  #bdd0ff;
+  --ice2: #84a8ff;
+  --ice3: #4a7aff;
+  --glow:  rgba(74,122,255,0.14);
+  --glow2: rgba(130,170,255,0.08);
+  --r:  18px;
+  --rl: 28px;
+  --rx: 40px;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--black);
+  color: var(--white);
+  font-family: 'Manrope', sans-serif;
+  font-weight: 300;
+  overflow-x: hidden;
+  cursor: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* GRAIN */
+body::after {
+  content: '';
+  position: fixed; inset: 0; z-index: 9990;
+  pointer-events: none; mix-blend-mode: overlay; opacity: .022;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ══════════════════════════════════════
+   SCROLL LAYER SYSTEM
+══════════════════════════════════════ */
+
+/* Layer 1: Floating glass orbs */
+.orb-layer {
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 1;
+  overflow: hidden;
+}
+.orb {
+  position: absolute; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.08) 0%, rgba(100,140,255,0.05) 40%, transparent 70%);
+  border: 1px solid rgba(255,255,255,0.05);
+  backdrop-filter: blur(0px);
+  box-shadow:
+    inset 0 0 60px rgba(255,255,255,0.03),
+    inset 0 0 120px rgba(100,140,255,0.04),
+    0 0 80px rgba(74,122,255,0.06);
+  will-change: transform;
+}
+.orb-a {
+  width: 520px; height: 520px;
+  top: 8vh; right: -80px;
+}
+.orb-b {
+  width: 380px; height: 380px;
+  top: 55vh; left: -60px;
+}
+.orb-c {
+  width: 280px; height: 280px;
+  top: 30vh; left: 38vw;
+  background: radial-gradient(circle at 40% 30%, rgba(255,255,255,0.06) 0%, rgba(180,120,255,0.04) 40%, transparent 70%);
+  box-shadow: inset 0 0 60px rgba(255,255,255,0.03), 0 0 60px rgba(120,80,255,0.05);
+}
+
+/* Layer 2: Drifting background text */
+.drift-layer {
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 0;
+  overflow: hidden;
+}
+.drift-word {
+  position: absolute;
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: clamp(80px, 14vw, 200px);
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(255,255,255,0.04);
+  white-space: nowrap;
+  will-change: transform;
+  user-select: none;
+}
+.dw-design  { top: 12vh;  left: -2vw; }
+.dw-webb    { top: 38vh;  right: -4vw; text-align: right; }
+.dw-konv    { top: 66vh;  left: -3vw; }
+
+/* Layer 3: Particle grid */
+.particle-layer {
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 0;
+  overflow: hidden;
+}
+#particleCanvas {
+  width: 100%; height: 100%;
+  opacity: 0.55;
+}
+
+/* Ambient glow */
+.amb-layer {
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 0;
+  overflow: hidden;
+}
+.amb {
+  position: absolute; border-radius: 50%;
+  filter: blur(140px); opacity: 1;
+  will-change: transform;
+}
+.amb-a { width: 900px; height: 900px; background: radial-gradient(circle, rgba(44,80,200,.1) 0%, transparent 70%); top: -260px; right: -160px; }
+.amb-b { width: 700px; height: 700px; background: radial-gradient(circle, rgba(80,44,190,.07) 0%, transparent 70%); bottom: -160px; left: -110px; }
+.amb-c { width: 500px; height: 500px; background: radial-gradient(circle, rgba(16,54,180,.07) 0%, transparent 70%); top: 44%; left: 36%; }
+
+/* ══════════════════════════════════════
+   CURSOR
+══════════════════════════════════════ */
+.cursor { width: 8px; height: 8px; background: #fff; border-radius: 50%; position: fixed; pointer-events: none; z-index: 9999; transform: translate(-50%,-50%); mix-blend-mode: exclusion; transition: width .25s, height .25s; }
+.cursor.on { width: 38px; height: 38px; }
+.cring { width: 34px; height: 34px; border: 1px solid rgba(255,255,255,.13); border-radius: 50%; position: fixed; pointer-events: none; z-index: 9998; transform: translate(-50%,-50%); transition: border-color .3s; }
+
+/* ══════════════════════════════════════
+   GLASS UTILITY
+══════════════════════════════════════ */
+.glass {
+  background: var(--g1);
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  border: 1px solid var(--gl2);
+  border-radius: var(--rl);
+  position: relative; overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.06);
+  transition: background .4s, border-color .4s, box-shadow .4s, transform .4s cubic-bezier(.25,.46,.45,.94);
+}
+.glass::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.08), transparent);
+}
+.glass:hover {
+  background: var(--g2); border-color: var(--gl);
+  box-shadow: 0 20px 56px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.09);
+  transform: translateY(-4px);
+}
+
+/* ══════════════════════════════════════
+   BUTTONS
+══════════════════════════════════════ */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 13px 28px; border-radius: 980px;
+  font-family: 'Manrope', sans-serif; font-size: 13px; font-weight: 500;
+  text-decoration: none; border: none; cursor: none;
+  letter-spacing: .02em; white-space: nowrap;
+  transition: all .3s cubic-bezier(.25,.46,.45,.94);
+  position: relative; overflow: hidden;
+}
+.btn::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,.1) 0%, transparent 55%); border-radius: inherit; pointer-events: none; }
+
+.btn-w {
+  background: var(--white); color: var(--black);
+  box-shadow: 0 4px 20px rgba(0,0,0,.35), inset 0 1px 0 #fff;
+}
+.btn-w:hover { background: var(--off); transform: translateY(-1px); box-shadow: 0 10px 32px rgba(0,0,0,.45); }
+
+.btn-g {
+  background: var(--g1); color: var(--dim);
+  border: 1px solid var(--gl2); backdrop-filter: blur(12px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+}
+.btn-g:hover { background: var(--g2); color: var(--white); border-color: var(--gl); transform: translateY(-1px); }
+
+.btn-ice {
+  background: rgba(189,208,255,.11); color: var(--ice);
+  border: 1px solid rgba(189,208,255,.16); backdrop-filter: blur(16px);
+  box-shadow: 0 4px 16px rgba(74,122,255,.1), inset 0 1px 0 rgba(255,255,255,.07);
+}
+.btn-ice:hover { background: rgba(189,208,255,.18); border-color: rgba(189,208,255,.3); color: #fff; transform: translateY(-1px); box-shadow: 0 8px 28px rgba(74,122,255,.2); }
+
+/* ══════════════════════════════════════
+   NAV
+══════════════════════════════════════ */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 600;
+  padding: 28px 64px;
+  display: flex; align-items: center; justify-content: space-between;
+  transition: padding .4s;
+}
+nav.sc {
+  padding: 16px 64px;
+  background: rgba(5,6,10,.88);
+  backdrop-filter: blur(32px) saturate(1.4);
+  -webkit-backdrop-filter: blur(32px) saturate(1.4);
+  border-bottom: 1px solid var(--gl2);
+}
+
+.logo {
+  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 18px;
+  letter-spacing: .08em; color: var(--white); text-decoration: none;
+  display: flex; align-items: center; gap: 10px; position: relative; z-index: 1;
+}
+.lmark {
+  width: 28px; height: 28px; background: var(--g2); border: 1px solid var(--gl);
+  border-radius: 8px; display: flex; align-items: center; justify-content: center;
+  backdrop-filter: blur(8px); box-shadow: inset 0 1px 0 rgba(255,255,255,.1); flex-shrink: 0;
+}
+.lmark svg { width: 14px; height: 14px; }
+
+.nav-pill {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  background: var(--g1); backdrop-filter: blur(24px) saturate(1.3); -webkit-backdrop-filter: blur(24px) saturate(1.3);
+  border: 1px solid var(--gl2); border-radius: 980px;
+  padding: 9px 8px 9px 22px;
+  display: flex; align-items: center; gap: 32px;
+  box-shadow: 0 4px 24px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.05);
+}
+.nl { display: flex; gap: 32px; list-style: none; }
+.nl a { font-size: 13px; font-weight: 400; color: var(--dim); text-decoration: none; letter-spacing: .03em; transition: color .25s; }
+.nl a:hover { color: var(--white); }
+
+/* ══════════════════════════════════════
+   HERO — PINNED
+══════════════════════════════════════ */
+.hero-wrap {
+  height: 250vh; /* tall so content scrolls while hero stays */
+  position: relative;
+}
+.hero-sticky {
+  position: sticky; top: 0;
+  height: 100vh;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  padding: 0 64px 88px;
+  overflow: hidden; z-index: 2;
+}
+
+.hero-grid {
+  position: absolute; inset: 0; z-index: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px);
+  background-size: 88px 88px;
+  mask-image: radial-gradient(ellipse at 50% 8%, black 0%, transparent 65%);
+  -webkit-mask-image: radial-gradient(ellipse at 50% 8%, black 0%, transparent 65%);
+}
+
+.hero-badge {
+  position: absolute; top: 0; left: 0; right: 0;
+  display: flex; justify-content: center; padding-top: 120px; z-index: 2;
+  opacity: 0; animation: fD .9s .15s forwards;
+}
+.badge-pill {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: var(--g1); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--gl2); border-radius: 980px;
+  padding: 8px 20px 8px 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.06);
+}
+.bdot { width: 6px; height: 6px; background: var(--ice2); border-radius: 50%; animation: br 2.5s ease-in-out infinite; flex-shrink: 0; }
+@keyframes br { 0%,100%{box-shadow:0 0 6px rgba(130,170,255,.4)} 50%{box-shadow:0 0 16px rgba(130,170,255,.7)} }
+.badge-txt { font-size: 12px; font-weight: 500; color: var(--dim); letter-spacing: .07em; text-transform: uppercase; }
+
+.hero-title-wrap { position: relative; z-index: 2; margin-bottom: 56px; }
+.hero-eye {
+  font-size: 11px; font-weight: 500; letter-spacing: .24em; text-transform: uppercase; color: var(--muted);
+  margin-bottom: 28px; display: flex; align-items: center; gap: 14px;
+  opacity: 0; animation: fU .8s .48s forwards;
+}
+.hero-eye::before { content: ''; width: 32px; height: 1px; background: linear-gradient(to right, transparent, var(--gl)); }
+
+.hero-h {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(60px, 9vw, 142px);
+  font-weight: 400; line-height: .9; letter-spacing: -.03em;
+}
+.hl { display: block; overflow: hidden; }
+.hli {
+  display: block; opacity: 0; transform: translateY(100%);
+  animation: sU .9s cubic-bezier(.16,1,.3,1) forwards;
+}
+.hl:nth-child(1) .hli { animation-delay: .52s; }
+.hl:nth-child(2) .hli { animation-delay: .64s; }
+.hl:nth-child(3) .hli { animation-delay: .76s; }
+.hl:nth-child(4) .hli { animation-delay: .88s; }
+.t-solid { color: var(--white); }
+.t-italic { font-style: italic; color: var(--ice); }
+.t-out { -webkit-text-stroke: 1px rgba(255,255,255,.16); color: transparent; }
+#mw { display: inline-block; transition: opacity .3s, transform .35s; }
+
+.hero-bottom {
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 48px;
+  position: relative; z-index: 2;
+  opacity: 0; animation: fU .9s .96s forwards;
+}
+.hero-sub { font-size: 16px; line-height: 1.82; color: var(--dim); font-weight: 300; max-width: 450px; margin-bottom: 36px; }
+.hero-acts { display: flex; gap: 12px; flex-wrap: wrap; }
+
+/* Result card in hero */
+.hcard {
+  background: var(--g1); backdrop-filter: blur(28px) saturate(1.5); -webkit-backdrop-filter: blur(28px) saturate(1.5);
+  border: 1px solid var(--gl); border-radius: var(--rl);
+  padding: 26px 30px; min-width: 224px; flex-shrink: 0;
+  box-shadow: 0 16px 48px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.08);
+  position: relative; overflow: hidden;
+}
+.hcard::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,.1), transparent); }
+.hc-lbl { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); font-weight: 500; margin-bottom: 12px; }
+.hc-val { font-family: 'DM Serif Display', serif; font-size: 40px; font-weight: 400; color: var(--white); line-height: 1; }
+.hc-val span { font-size: 17px; color: var(--dim); }
+.hc-sub { font-size: 12px; color: var(--muted); margin-top: 6px; }
+.hc-row { display: flex; gap: 10px; align-items: center; margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--gl2); }
+.hc-g { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; flex-shrink: 0; }
+.hc-st { font-size: 11px; color: var(--dim); }
+
+/* scroll progress in hero section */
+.hero-progress {
+  position: absolute; bottom: 88px; left: 64px;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  z-index: 2; opacity: 0; animation: fU .8s 1.3s forwards;
+}
+.s-track { width: 1px; height: 52px; background: var(--gl2); position: relative; overflow: hidden; }
+.s-track::after { content: ''; position: absolute; top: -100%; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, transparent, var(--ice2)); animation: sd 2s ease-in-out infinite; }
+@keyframes sd { 0%{top:-100%;opacity:1} 100%{top:100%;opacity:0} }
+.s-lbl { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); writing-mode: vertical-rl; }
+
+/* ══════════════════════════════════════
+   MARQUEE
+══════════════════════════════════════ */
+.mq {
+  border-top: 1px solid var(--gl2); border-bottom: 1px solid var(--gl2);
+  background: var(--g0); backdrop-filter: blur(8px);
+  padding: 15px 0; overflow: hidden; position: relative; z-index: 3;
+}
+.mq-track { display: inline-flex; animation: mq 32s linear infinite; }
+.mq-item {
+  font-size: 11px; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--muted); font-weight: 500; white-space: nowrap;
+  display: flex; align-items: center; gap: 44px; padding: 0 44px;
+}
+.mq-item::after { content: '·'; color: var(--ice2); font-size: 16px; }
+
+/* ══════════════════════════════════════
+   MAIN CONTENT SECTIONS
+══════════════════════════════════════ */
+.main-content { position: relative; z-index: 3; background: var(--black); }
+
+/* Section commons */
+.section { padding: 140px 64px; }
+.sec-kick { font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: var(--ice2); font-weight: 500; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; }
+.sec-kick::before { content: ''; width: 24px; height: 1.5px; background: var(--ice2); border-radius: 99px; }
+.sec-title { font-family: 'DM Serif Display', serif; font-size: clamp(32px, 4vw, 52px); font-weight: 400; line-height: 1.05; letter-spacing: -.025em; }
+.sec-title em { font-style: italic; color: var(--ice); }
+.sec-head { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 64px; }
+.sec-lnk { font-size: 13px; font-weight: 500; color: var(--muted); text-decoration: none; display: flex; align-items: center; gap: 8px; padding-bottom: 4px; border-bottom: 1px solid var(--gl2); transition: color .3s, border-color .3s; white-space: nowrap; align-self: flex-end; }
+.sec-lnk:hover { color: var(--ice2); border-color: var(--ice2); }
+
+/* ── SHOWCASE (replaces AI demo) ── */
+.showcase { padding: 140px 64px; position: relative; }
+
+.showcase-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px; margin-top: 64px;
+}
+
+.showcase-card {
+  border-radius: var(--rx);
+  overflow: hidden; cursor: none;
+  transition: transform .4s cubic-bezier(.25,.46,.45,.94), box-shadow .4s;
+  position: relative;
+}
+.showcase-card:hover { transform: translateY(-6px) scale(1.01); }
+
+.sc-before, .sc-after {
+  position: absolute; top: 16px;
+  font-size: 10px; letter-spacing: .14em; text-transform: uppercase;
+  font-weight: 600; padding: 5px 12px; border-radius: 980px;
+}
+.sc-before { left: 16px; background: rgba(255,60,60,.12); color: rgba(255,120,120,.8); border: 1px solid rgba(255,60,60,.2); }
+.sc-after { right: 16px; background: rgba(74,122,255,.15); color: var(--ice2); border: 1px solid rgba(74,122,255,.2); }
+
+.sc-preview {
+  height: 320px;
+  position: relative; overflow: hidden;
+}
+
+/* Generic "bad" site mockup */
+.mock-bad {
+  background: #f0f0f0; width: 100%; height: 100%;
+  display: flex; flex-direction: column;
+  font-family: Arial, sans-serif;
+}
+.mb-nav { background: #fff; border-bottom: 1px solid #ddd; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; }
+.mb-logo-txt { font-size: 14px; font-weight: bold; color: #333; }
+.mb-links { display: flex; gap: 12px; }
+.mb-lnk { font-size: 10px; color: #666; }
+.mb-hero { background: linear-gradient(135deg, #667eea, #764ba2); padding: 32px 24px; color: white; text-align: center; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.mb-h1 { font-size: 22px; font-weight: bold; margin-bottom: 10px; }
+.mb-p { font-size: 11px; opacity: .8; margin-bottom: 16px; }
+.mb-btn { background: #ff6b6b; color: white; padding: 8px 20px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+.mb-cards { display: flex; gap: 0; background: #f5f5f5; }
+.mb-card { flex: 1; padding: 12px; border-right: 1px solid #e0e0e0; text-align: center; }
+.mb-ci { width: 28px; height: 28px; background: #ddd; border-radius: 4px; margin: 0 auto 6px; }
+.mb-cn { font-size: 10px; font-weight: bold; color: #444; }
+.mb-cd { font-size: 9px; color: #888; margin-top: 3px; }
+
+/* Premium Websday site mockup */
+.mock-good {
+  background: #05060a; width: 100%; height: 100%;
+  display: flex; flex-direction: column;
+  font-family: 'Manrope', sans-serif; overflow: hidden;
+}
+.mg-nav { padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,.05); }
+.mg-logo { font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: .1em; color: #fff; }
+.mg-btn { background: #fff; color: #05060a; padding: 5px 12px; border-radius: 980px; font-size: 9px; font-weight: 600; }
+.mg-hero { flex: 1; position: relative; display: flex; align-items: flex-end; padding: 20px; overflow: hidden; }
+.mg-bg { position: absolute; inset: 0; background: radial-gradient(ellipse at 70% 20%, rgba(74,122,255,.2) 0%, transparent 60%), radial-gradient(ellipse at 20% 80%, rgba(100,60,200,.12) 0%, transparent 55%); }
+.mg-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px); background-size: 28px 28px; mask-image: radial-gradient(ellipse at 50% 0%, black, transparent 70%); -webkit-mask-image: radial-gradient(ellipse at 50% 0%, black, transparent 70%); }
+.mg-h1 { font-family: 'DM Serif Display', serif; font-size: 26px; color: #fff; line-height: .95; letter-spacing: -.02em; position: relative; z-index: 1; }
+.mg-h1 em { font-style: italic; color: #bdd0ff; }
+.mg-orb { position: absolute; width: 180px; height: 180px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, rgba(255,255,255,.07), rgba(100,140,255,.04), transparent); border: 1px solid rgba(255,255,255,.05); top: 10px; right: -20px; }
+.mg-cards { display: flex; gap: 6px; padding: 12px 20px 14px; }
+.mg-card { flex: 1; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.07); border-radius: 10px; padding: 10px; }
+.mg-cv { font-family: 'DM Serif Display', serif; font-size: 18px; color: #fff; line-height: 1; }
+.mg-cl { font-size: 8px; color: rgba(255,255,255,.4); margin-top: 2px; letter-spacing: .1em; }
+
+.sc-label {
+  padding: 20px 24px;
+  background: var(--g1); border-top: 1px solid var(--gl2);
+  backdrop-filter: blur(12px);
+}
+.sc-label-title { font-family: 'DM Serif Display', serif; font-size: 16px; font-weight: 400; margin-bottom: 4px; }
+.sc-label-sub { font-size: 12px; color: var(--muted); line-height: 1.6; }
+
+/* ── SERVICES ── */
+.svc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.svc-card { padding: 44px 40px; cursor: none; }
+.svc-n { font-size: 11px; letter-spacing: .2em; color: var(--muted); font-weight: 500; margin-bottom: 32px; text-transform: uppercase; }
+.svc-ico { width: 46px; height: 46px; background: var(--g2); border: 1px solid var(--gl); border-radius: 13px; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; box-shadow: inset 0 1px 0 rgba(255,255,255,.07); transition: background .3s, border-color .3s; }
+.svc-card:hover .svc-ico { background: var(--glow); border-color: rgba(189,208,255,.2); }
+.svc-name { font-family: 'DM Serif Display', serif; font-size: 26px; font-weight: 400; line-height: 1.1; margin-bottom: 12px; transition: color .3s; }
+.svc-card:hover .svc-name { color: var(--ice); }
+.svc-desc { font-size: 13px; line-height: 1.8; color: var(--dim); font-weight: 300; margin-bottom: 28px; }
+.svc-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.svc-tag { font-size: 11px; padding: 4px 11px; background: var(--g1); border: 1px solid var(--gl2); border-radius: 980px; color: var(--muted); transition: all .3s; letter-spacing: .04em; }
+.svc-card:hover .svc-tag { border-color: rgba(189,208,255,.15); color: var(--ice); }
+.svc-arr { position: absolute; top: 36px; right: 36px; width: 30px; height: 30px; border: 1px solid var(--gl2); border-radius: 50%; display: flex; align-items: center; justify-content: center; opacity: 0; transform: translate(6px,-6px); transition: all .35s; color: var(--ice2); }
+.svc-card:hover .svc-arr { opacity: 1; transform: translate(0,0); border-color: var(--ice2); }
+
+/* ── NUMBERS ── */
+.nums-glass {
+  background: var(--g1); backdrop-filter: blur(32px) saturate(1.5); -webkit-backdrop-filter: blur(32px) saturate(1.5);
+  border: 1px solid var(--gl2); border-radius: var(--rx); padding: 72px 80px;
+  display: grid; grid-template-columns: repeat(4,1fr);
+  box-shadow: 0 24px 64px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.07);
+  position: relative; overflow: hidden;
+}
+.nums-glass::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,.09), transparent); }
+.nitem { padding: 0 44px; border-right: 1px solid var(--gl2); text-align: center; }
+.nitem:first-child { padding-left: 0; }
+.nitem:last-child { border-right: none; padding-right: 0; }
+.nval { font-family: 'DM Serif Display', serif; font-size: 60px; font-weight: 400; line-height: 1; letter-spacing: -.03em; margin-bottom: 8px; }
+.nval sup { font-size: 24px; color: var(--ice); vertical-align: top; margin-top: 10px; display: inline-block; }
+.nlbl { font-size: 12px; color: var(--muted); letter-spacing: .08em; font-weight: 400; }
+
+/* ── WORK ── */
+.work-rows { border-top: 1px solid var(--gl2); margin-top: 64px; }
+.wrow { display: grid; grid-template-columns: 64px 1fr 180px 100px; align-items: center; gap: 32px; padding: 28px 0; border-bottom: 1px solid var(--gl2); cursor: none; position: relative; transition: padding-left .3s; }
+.wrow::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--ice2); transition: width .35s; opacity: .55; }
+.wrow:hover::before { width: 2px; }
+.wrow:hover { padding-left: 18px; }
+.wn { font-size: 11px; letter-spacing: .15em; color: var(--muted); font-weight: 500; }
+.wname { font-family: 'DM Serif Display', serif; font-size: 24px; font-weight: 400; transition: color .3s; }
+.wrow:hover .wname { color: var(--ice); }
+.wtags { display: flex; gap: 7px; }
+.wtag { font-size: 11px; padding: 4px 11px; border: 1px solid var(--gl2); border-radius: 980px; color: var(--muted); }
+.wyr { font-size: 13px; color: var(--muted); text-align: right; font-weight: 300; }
+
+/* ── PROCESS ── */
+.proc-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-top: 64px; }
+.pc { padding: 44px 36px; cursor: none; }
+.pc-step { font-family: 'DM Serif Display', serif; font-size: 80px; font-weight: 400; color: rgba(255,255,255,.04); line-height: 1; margin-bottom: 24px; letter-spacing: -.04em; }
+.pc-ico { width: 40px; height: 40px; background: var(--g2); border: 1px solid var(--gl); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 18px; box-shadow: inset 0 1px 0 rgba(255,255,255,.07); }
+.pc-ttl { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 10px; }
+.pc-txt { font-size: 13px; line-height: 1.8; color: var(--dim); font-weight: 300; }
+
+/* ── TESTIMONIAL ── */
+.tp {
+  background: var(--g1); backdrop-filter: blur(32px) saturate(1.5); -webkit-backdrop-filter: blur(32px) saturate(1.5);
+  border: 1px solid var(--gl2); border-radius: var(--rx);
+  padding: 88px 96px; position: relative; overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.07);
+}
+.tp::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,.1), transparent); }
+.tp::after { content: '"'; font-family: 'DM Serif Display', serif; font-size: 320px; color: rgba(189,208,255,.04); position: absolute; top: -40px; left: 48px; line-height: 1; pointer-events: none; font-style: italic; }
+.tq { font-family: 'DM Serif Display', serif; font-size: clamp(19px, 2.5vw, 32px); font-style: italic; font-weight: 400; line-height: 1.5; color: var(--off); max-width: 760px; margin-bottom: 48px; position: relative; z-index: 1; }
+.tq span { color: var(--ice); }
+.ta { display: flex; align-items: center; gap: 18px; position: relative; z-index: 1; }
+.tav { width: 44px; height: 44px; border-radius: 50%; background: var(--g2); border: 1px solid var(--gl); display: flex; align-items: center; justify-content: center; font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--ice); font-style: italic; flex-shrink: 0; }
+.tn { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+.tr { font-size: 12px; color: var(--muted); }
+.tnav { position: absolute; bottom: 72px; right: 96px; display: flex; gap: 8px; z-index: 2; }
+.tbtn { width: 34px; height: 34px; background: var(--g2); border: 1px solid var(--gl2); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: none; transition: all .25s; color: var(--dim); }
+.tbtn:hover { background: var(--g3); color: var(--white); border-color: var(--gl); }
+
+/* ── PRICING ── */
+.pgrid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-top: 64px; }
+.pcard { padding: 48px 44px; cursor: none; }
+.pcard.feat { background: linear-gradient(135deg, rgba(74,122,255,.12) 0%, rgba(110,80,255,.06) 100%); border-color: rgba(189,208,255,.16); }
+.pcard.feat:hover { border-color: rgba(189,208,255,.3); box-shadow: 0 20px 56px rgba(74,122,255,.15), inset 0 1px 0 rgba(255,255,255,.1); }
+.pbadge { display: inline-flex; align-items: center; font-size: 10px; letter-spacing: .15em; text-transform: uppercase; font-weight: 600; padding: 5px 12px; background: var(--glow); border: 1px solid rgba(189,208,255,.16); border-radius: 980px; color: var(--ice); margin-bottom: 28px; }
+.pname { font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--dim); margin-bottom: 8px; }
+.pamnt { font-family: 'DM Serif Display', serif; font-size: 44px; font-weight: 400; line-height: 1; letter-spacing: -.02em; margin-bottom: 4px; }
+.pamnt small { font-family: 'Manrope', sans-serif; font-size: 14px; color: var(--muted); font-weight: 300; letter-spacing: 0; }
+.pnote { font-size: 12px; color: var(--muted); margin-bottom: 28px; margin-top: 4px; }
+.pdesc { font-size: 13px; line-height: 1.75; color: var(--dim); font-weight: 300; margin-bottom: 28px; }
+.pdiv { height: 1px; background: var(--gl2); margin-bottom: 24px; }
+.pfeats { display: flex; flex-direction: column; gap: 12px; margin-bottom: 36px; }
+.pfeat { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--dim); font-weight: 300; }
+.pfeat::before { content: ''; width: 4px; height: 4px; border-radius: 50%; background: var(--ice2); flex-shrink: 0; }
+.pbtn { display: block; width: 100%; padding: 14px; border-radius: 12px; font-family: 'Manrope', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: .04em; text-align: center; text-decoration: none; border: none; cursor: none; transition: all .3s; }
+.pbtn-o { background: var(--g2); color: var(--dim); border: 1px solid var(--gl2); }
+.pbtn-o:hover { background: var(--g3); color: var(--white); border-color: var(--gl); }
+.pbtn-i { background: rgba(189,208,255,.11); color: var(--ice); border: 1px solid rgba(189,208,255,.18); }
+.pbtn-i:hover { background: rgba(189,208,255,.2); border-color: rgba(189,208,255,.32); color: var(--white); }
+
+/* ── CTA ── */
+.cta-box {
+  background: var(--g1); backdrop-filter: blur(40px) saturate(1.5); -webkit-backdrop-filter: blur(40px) saturate(1.5);
+  border: 1px solid var(--gl2); border-radius: var(--rx);
+  padding: 112px 96px; text-align: center; position: relative; overflow: hidden;
+  box-shadow: 0 32px 80px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.07);
+}
+.cta-box::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,.1), transparent); }
+.cta-glow { position: absolute; bottom: -200px; left: 50%; transform: translateX(-50%); width: 600px; height: 400px; background: radial-gradient(ellipse, var(--glow2) 0%, transparent 70%); filter: blur(60px); pointer-events: none; }
+.cta-kick { font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: var(--ice2); font-weight: 500; margin-bottom: 28px; position: relative; z-index: 1; }
+.cta-title { font-family: 'DM Serif Display', serif; font-size: clamp(42px, 5.5vw, 88px); font-weight: 400; line-height: .95; letter-spacing: -.03em; margin-bottom: 28px; position: relative; z-index: 1; }
+.cta-title em { font-style: italic; color: var(--ice); }
+.cta-sub { font-size: 16px; color: var(--dim); line-height: 1.8; max-width: 420px; margin: 0 auto 52px; font-weight: 300; position: relative; z-index: 1; }
+.cta-acts { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; position: relative; z-index: 1; }
+.cta-fn { font-size: 12px; color: var(--muted); margin-top: 28px; position: relative; z-index: 1; }
+.cta-fn a { color: var(--ice2); text-decoration: none; }
+
+/* ── FOOTER ── */
+.fpanel {
+  background: var(--g1); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--gl2); border-radius: var(--rx); padding: 72px 72px 48px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+}
+.ftop { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 64px; margin-bottom: 60px; }
+.flogo { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 18px; letter-spacing: .07em; display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+.fdesc { font-size: 13px; color: var(--muted); line-height: 1.85; max-width: 250px; font-weight: 300; margin-bottom: 28px; }
+.fsocs { display: flex; gap: 8px; }
+.fsoc { width: 32px; height: 32px; background: var(--g1); border: 1px solid var(--gl2); border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; font-family: 'Syne', sans-serif; color: var(--muted); text-decoration: none; transition: all .25s; letter-spacing: .04em; }
+.fsoc:hover { background: var(--glow); border-color: rgba(189,208,255,.16); color: var(--ice); }
+.fct { font-size: 10px; letter-spacing: .22em; text-transform: uppercase; color: var(--ice2); font-weight: 600; margin-bottom: 20px; }
+.flinks { list-style: none; }
+.flinks li { margin-bottom: 11px; }
+.flinks a { font-size: 13px; color: var(--muted); text-decoration: none; font-weight: 300; transition: color .25s; }
+.flinks a:hover { color: var(--white); }
+.fcon p { font-size: 13px; color: var(--muted); line-height: 2.1; font-weight: 300; }
+.fcon a { color: var(--ice2); text-decoration: none; }
+.fbot { border-top: 1px solid var(--gl2); padding-top: 28px; display: flex; align-items: center; justify-content: space-between; }
+.fcopy { font-size: 12px; color: var(--muted); font-weight: 300; }
+.fcred { font-size: 12px; color: var(--muted); }
+.fcred span { color: var(--ice2); }
+
+/* ══════════════════════════════════════
+   KEYFRAMES
+══════════════════════════════════════ */
+@keyframes fU { from{opacity:0;transform:translateY(22px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fD { from{opacity:0;transform:translateY(-14px)} to{opacity:1;transform:translateY(0)} }
+@keyframes sU { from{opacity:0;transform:translateY(100%)} to{opacity:1;transform:translateY(0)} }
+@keyframes mq  { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+.rv { opacity:0; transform:translateY(28px); transition: opacity .85s ease, transform .85s ease; }
+.rv.in { opacity:1; transform:translateY(0); }
+.d1{transition-delay:.08s} .d2{transition-delay:.16s} .d3{transition-delay:.24s} .d4{transition-delay:.32s}
+
+/* ══════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════ */
+@media(max-width:1100px){
+  .svc-grid{grid-template-columns:1fr 1fr}
+  .showcase-grid{grid-template-columns:1fr}
+  .nums-glass{grid-template-columns:1fr 1fr;gap:40px;padding:52px 48px}
+  .nitem{border-right:none;padding:24px 0;border-bottom:1px solid var(--gl2)}
+  .nitem:nth-child(even){border-bottom:none}
+  .proc-grid{grid-template-columns:1fr 1fr}
+  .pgrid{grid-template-columns:1fr;max-width:480px}
+  .ftop{grid-template-columns:1fr 1fr;gap:44px}
+  .wrow{grid-template-columns:48px 1fr auto}
+  .wyr{display:none}
+}
+@media(max-width:768px){
+  nav{padding:18px 24px}
+  nav.sc{padding:14px 24px}
+  .nav-pill{display:none}
+  .hero-sticky{padding:0 24px 64px}
+  .hero-bottom{flex-direction:column;align-items:flex-start}
+  .section,.showcase{padding:96px 24px}
+  .svc-grid,.proc-grid{grid-template-columns:1fr}
+  .sec-head{flex-direction:column;align-items:flex-start;gap:20px}
+  .tp,.cta-box,.fpanel{padding:52px 32px;border-radius:28px}
+  .tnav{position:relative;bottom:auto;right:auto;margin-top:32px}
+  .ftop{grid-template-columns:1fr;gap:36px}
+  .fbot{flex-direction:column;gap:10px;text-align:center}
+  footer{padding:0 24px 44px}
+  .drift-word{font-size:clamp(52px,14vw,100px)}
+  .orb-a{width:320px;height:320px}
+  .orb-b{width:240px;height:240px}
+  .orb-c{width:180px;height:180px}
+  body{cursor:auto}
+  .cursor,.cring{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ SCROLL LAYERS ══ -->
+
+<!-- Layer 0: Ambient glow -->
+<div class="amb-layer">
+  <div class="amb amb-a"></div>
+  <div class="amb amb-b"></div>
+  <div class="amb amb-c"></div>
+</div>
+
+<!-- Layer 1: Particle grid -->
+<div class="particle-layer">
+  <canvas id="particleCanvas"></canvas>
+</div>
+
+<!-- Layer 2: Drifting text -->
+<div class="drift-layer">
+  <div class="drift-word dw-design" id="dw1">DESIGN</div>
+  <div class="drift-word dw-webb"   id="dw2">WEBB</div>
+  <div class="drift-word dw-konv"   id="dw3">KONVERTERING</div>
+</div>
+
+<!-- Layer 3: Floating orbs -->
+<div class="orb-layer">
+  <div class="orb orb-a" id="orb-a"></div>
+  <div class="orb orb-b" id="orb-b"></div>
+  <div class="orb orb-c" id="orb-c"></div>
+</div>
+
+<!-- CURSOR -->
+<div class="cursor" id="cur"></div>
+<div class="cring"  id="crn"></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#" class="logo">
+    <div class="lmark"><svg viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" rx="1.5" fill="rgba(189,208,255,.75)"/><rect x="8" y="1" width="5" height="5" rx="1.5" fill="rgba(189,208,255,.4)"/><rect x="1" y="8" width="5" height="5" rx="1.5" fill="rgba(189,208,255,.4)"/><rect x="8" y="8" width="5" height="5" rx="1.5" fill="rgba(189,208,255,.75)"/></svg></div>
+    WEBSDAY
+  </a>
+  <div class="nav-pill">
+    <ul class="nl">
+      <li><a href="#tjanster">Tjänster</a></li>
+      <li><a href="#arbete">Arbete</a></li>
+      <li><a href="#process">Process</a></li>
+      <li><a href="#priser">Priser</a></li>
+    </ul>
+    <a href="#kontakt" class="btn btn-ice" style="font-size:13px;padding:10px 20px;">Starta projekt</a>
+  </div>
+  <a href="mailto:info@websday.se" class="btn btn-w" style="font-size:13px;padding:10px 20px;">info@websday.se</a>
+</nav>
+
+<!-- ══ HERO — PINNED ══ -->
+<div class="hero-wrap">
+  <div class="hero-sticky">
+    <div class="hero-grid"></div>
+
+    <div class="hero-badge">
+      <div class="badge-pill">
+        <span class="bdot"></span>
+        <span class="badge-txt">Premium webbyrå · Stockholm · 2 platser kvar i juni</span>
+      </div>
+    </div>
+
+    <div class="hero-title-wrap">
+      <div class="hero-eye">Vi designar webb som säljer</div>
+      <h1 class="hero-h">
+        <span class="hl"><span class="hli t-solid">Gör ditt</span></span>
+        <span class="hl"><span class="hli t-italic"><span id="mw">varumärke</span></span></span>
+        <span class="hl"><span class="hli t-out">omöjligt</span></span>
+        <span class="hl"><span class="hli t-solid" style="display:flex;align-items:baseline;gap:18px;">att ignorera.<span style="font-family:'Manrope',sans-serif;font-size:.32em;color:var(--dim);font-weight:300;font-style:normal;align-self:flex-end;padding-bottom:.28em;letter-spacing:-.01em;">™</span></span></span>
+      </h1>
+    </div>
+
+    <div class="hero-bottom">
+      <div>
+        <p class="hero-sub">Vi designar och bygger webbplatser som tvingar folk att stanna — och sedan köpa. Premium resultat för ambitiösa svenska företag.</p>
+        <div class="hero-acts">
+          <a href="#kontakt" class="btn btn-w">Boka ett samtal <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 7h9M8 3.5l3.5 3.5L8 10.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></a>
+          <a href="#arbete" class="btn btn-g">Se våra projekt</a>
+        </div>
+      </div>
+      <div class="hcard">
+        <div class="hc-lbl">Senaste resultat</div>
+        <div class="hc-val">+240<span>%</span></div>
+        <div class="hc-sub">leads · Nordic Fitness Co.</div>
+        <div class="hc-row"><span class="hc-g"></span><span class="hc-st">Levererat på 3 veckor</span></div>
+      </div>
+    </div>
+
+    <div class="hero-progress">
+      <div class="s-track"></div>
+      <span class="s-lbl">Scrolla</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MAIN CONTENT ══ -->
+<div class="main-content">
+
+  <!-- MARQUEE -->
+  <div class="mq">
+    <div class="mq-track">
+      <div class="mq-item">Webbdesign</div><div class="mq-item">E-handel</div><div class="mq-item">Webb-appar</div><div class="mq-item">SEO & CRO</div><div class="mq-item">Varumärke</div><div class="mq-item">Support</div>
+      <div class="mq-item">Webbdesign</div><div class="mq-item">E-handel</div><div class="mq-item">Webb-appar</div><div class="mq-item">SEO & CRO</div><div class="mq-item">Varumärke</div><div class="mq-item">Support</div>
+    </div>
+  </div>
+
+  <!-- SHOWCASE -->
+  <section class="showcase rv" id="showcase">
+    <div class="sec-kick">Vad vi faktiskt levererar</div>
+    <h2 class="sec-title" style="margin-bottom:16px;">Skillnaden är<br><em>uppenbar</em></h2>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:64px;font-weight:300;max-width:440px;line-height:1.75;">Tre branscher. Samma budget. Helt olika utfall. Det handlar inte om verktyg — det handlar om vem som designar.</p>
+
+    <div class="showcase-grid">
+      <!-- Card 1 -->
+      <div class="showcase-card glass rv">
+        <div class="sc-preview">
+          <span class="sc-before">Typisk mall</span>
+          <span class="sc-after">Websday</span>
+          <!-- Split view -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;height:100%;">
+            <div class="mock-bad" style="transform:scale(.85);transform-origin:top left;width:117%;height:117%;">
+              <div class="mb-nav"><div class="mb-logo-txt">SALONG</div><div class="mb-links"><span class="mb-lnk">Start</span><span class="mb-lnk">Om</span><span class="mb-lnk">Kontakt</span></div></div>
+              <div class="mb-hero" style="background:linear-gradient(135deg,#667eea,#764ba2);"><div class="mb-h1">Välkommen!</div><div class="mb-p">Vi klipper hår och erbjuder<br>olika behandlingar.</div><div class="mb-btn">Boka nu!</div></div>
+              <div class="mb-cards"><div class="mb-card"><div class="mb-ci"></div><div class="mb-cn">Klipp</div><div class="mb-cd">från 250kr</div></div><div class="mb-card"><div class="mb-ci"></div><div class="mb-cn">Färg</div><div class="mb-cd">från 800kr</div></div><div class="mb-card" style="border:none"><div class="mb-ci"></div><div class="mb-cn">Balayage</div><div class="mb-cd">från 1200kr</div></div></div>
+            </div>
+            <div class="mock-good">
+              <div class="mg-nav"><div class="mg-logo">MAISON NOIR</div><div class="mg-btn">Boka</div></div>
+              <div class="mg-hero">
+                <div class="mg-bg"></div><div class="mg-grid"></div>
+                <div class="mg-orb"></div>
+                <div class="mg-h1">Konsten att<br>forma <em>perfektion</em></div>
+              </div>
+              <div class="mg-cards">
+                <div class="mg-card"><div class="mg-cv">3.2k<sup style="font-size:10px;color:rgba(189,208,255,.7)">+</sup></div><div class="mg-cl">Kunder</div></div>
+                <div class="mg-card"><div class="mg-cv">4.9<sup style="font-size:10px;color:rgba(189,208,255,.7)">★</sup></div><div class="mg-cl">Betyg</div></div>
+                <div class="mg-card"><div class="mg-cv">12<sup style="font-size:10px;color:rgba(189,208,255,.7)">år</sup></div><div class="mg-cl">Erfarenhet</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="sc-label">
+          <div class="sc-label-title">Hårsalong</div>
+          <div class="sc-label-sub">Generisk mall vs Websday Premium — 63% fler bokningar på 60 dagar.</div>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="showcase-card glass rv d1">
+        <div class="sc-preview">
+          <span class="sc-before">Typisk mall</span>
+          <span class="sc-after">Websday</span>
+          <div style="display:grid;grid-template-columns:1fr 1fr;height:100%;">
+            <div class="mock-bad" style="transform:scale(.85);transform-origin:top left;width:117%;height:117%;">
+              <div class="mb-nav"><div class="mb-logo-txt">GYM PRO</div><div class="mb-links"><span class="mb-lnk">Hem</span><span class="mb-lnk">Klasser</span><span class="mb-lnk">Priser</span></div></div>
+              <div class="mb-hero" style="background:linear-gradient(135deg,#f7971e,#ffd200);"><div class="mb-h1" style="color:#000">Träna hårt!</div><div class="mb-p" style="color:rgba(0,0,0,.7)">Bli medlem idag och kom igång.</div><div class="mb-btn" style="background:#333">Bli Medlem</div></div>
+              <div class="mb-cards"><div class="mb-card"><div class="mb-ci" style="background:#ffd200"></div><div class="mb-cn">Styrka</div><div class="mb-cd">Alla nivåer</div></div><div class="mb-card"><div class="mb-ci" style="background:#f7971e"></div><div class="mb-cn">Cardio</div><div class="mb-cd">Löpband</div></div><div class="mb-card" style="border:none"><div class="mb-ci" style="background:#333"></div><div class="mb-cn">Yoga</div><div class="mb-cd">Alla dagar</div></div></div>
+            </div>
+            <div class="mock-good" style="background:#040608;">
+              <div class="mg-nav" style="border-color:rgba(255,255,255,.04)"><div class="mg-logo" style="letter-spacing:.06em">NORDIC FITNESS</div><div class="mg-btn">Prova gratis</div></div>
+              <div class="mg-hero">
+                <div class="mg-bg" style="background:radial-gradient(ellipse at 70% 20%, rgba(255,80,80,.15) 0%, transparent 55%), radial-gradient(ellipse at 20% 80%, rgba(200,60,60,.1) 0%, transparent 55%)"></div>
+                <div class="mg-grid"></div>
+                <div class="mg-orb" style="background:radial-gradient(circle at 35% 35%, rgba(255,255,255,.07), rgba(255,100,100,.04), transparent)"></div>
+                <div class="mg-h1">Starkare.<br><em style="color:#ffb4b4">Varje dag.</em></div>
+              </div>
+              <div class="mg-cards">
+                <div class="mg-card"><div class="mg-cv">+240<sup style="font-size:10px;color:rgba(255,180,180,.7)">%</sup></div><div class="mg-cl">Leads</div></div>
+                <div class="mg-card"><div class="mg-cv">2400<sup style="font-size:10px;color:rgba(255,180,180,.7)">+</sup></div><div class="mg-cl">Medlemmar</div></div>
+                <div class="mg-card"><div class="mg-cv">4.9<sup style="font-size:10px;color:rgba(255,180,180,.7)">★</sup></div><div class="mg-cl">Betyg</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="sc-label">
+          <div class="sc-label-title">Gymkedja</div>
+          <div class="sc-label-sub">Shopify + custom design — +240% leads på 3 månader efter lansering.</div>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="showcase-card glass rv d2">
+        <div class="sc-preview">
+          <span class="sc-before">Typisk mall</span>
+          <span class="sc-after">Websday</span>
+          <div style="display:grid;grid-template-columns:1fr 1fr;height:100%;">
+            <div class="mock-bad" style="transform:scale(.85);transform-origin:top left;width:117%;height:117%;">
+              <div class="mb-nav"><div class="mb-logo-txt">Advokatbyrå AB</div><div class="mb-links"><span class="mb-lnk">Tjänster</span><span class="mb-lnk">Kontakt</span></div></div>
+              <div class="mb-hero" style="background:#1a3a5c;"><div class="mb-h1">Juridisk Hjälp</div><div class="mb-p">Vi hjälper er med juridiska frågor.<br>Kontakta oss idag.</div><div class="mb-btn" style="background:#c8a000">Ring oss</div></div>
+              <div class="mb-cards"><div class="mb-card"><div class="mb-ci" style="background:#1a3a5c;opacity:.4"></div><div class="mb-cn">Avtal</div><div class="mb-cd">Juridisk rådgivning</div></div><div class="mb-card"><div class="mb-ci" style="background:#1a3a5c;opacity:.4"></div><div class="mb-cn">Tvist</div><div class="mb-cd">Representation</div></div><div class="mb-card" style="border:none"><div class="mb-ci" style="background:#1a3a5c;opacity:.4"></div><div class="mb-cn">Bolag</div><div class="mb-cd">Bolagsrätt</div></div></div>
+            </div>
+            <div class="mock-good" style="background:#060508;">
+              <div class="mg-nav" style="border-color:rgba(255,255,255,.04)"><div class="mg-logo" style="letter-spacing:.04em;font-size:10px">LINDQVIST & PARTNERS</div><div class="mg-btn">Konsultation</div></div>
+              <div class="mg-hero">
+                <div class="mg-bg" style="background:radial-gradient(ellipse at 70% 20%, rgba(200,160,50,.12) 0%, transparent 55%), radial-gradient(ellipse at 20% 80%, rgba(160,120,40,.08) 0%, transparent 55%)"></div>
+                <div class="mg-grid"></div>
+                <div class="mg-orb" style="background:radial-gradient(circle at 35% 35%, rgba(255,255,255,.06), rgba(200,160,50,.04), transparent)"></div>
+                <div class="mg-h1" style="font-size:20px">Rätt rådgivning.<br><em style="color:#e8d080">Rätt resultat.</em></div>
+              </div>
+              <div class="mg-cards">
+                <div class="mg-card"><div class="mg-cv">25<sup style="font-size:10px;color:rgba(232,208,128,.7)">år</sup></div><div class="mg-cl">Erfarenhet</div></div>
+                <div class="mg-card"><div class="mg-cv">98<sup style="font-size:10px;color:rgba(232,208,128,.7)">%</sup></div><div class="mg-cl">Framgång</div></div>
+                <div class="mg-card"><div class="mg-cv">5.0<sup style="font-size:10px;color:rgba(232,208,128,.7)">★</sup></div><div class="mg-cl">Betyg</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="sc-label">
+          <div class="sc-label-title">Advokatbyrå</div>
+          <div class="sc-label-sub">Auktoritet och förtroende som konverterar — 180% fler kontaktförfrågningar.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section class="section" id="tjanster">
+    <div class="sec-head">
+      <div><div class="sec-kick">Vad vi gör</div><h2 class="sec-title rv">Tjänster som<br><em>levererar</em></h2></div>
+      <a href="#kontakt" class="sec-lnk">Se alla →</a>
+    </div>
+    <div class="svc-grid">
+      <div class="glass svc-card rv"><div class="svc-arr"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1 9L9 1M9 1H3M9 1v6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div><div class="svc-n">01</div><div class="svc-ico"><svg width="19" height="19" viewBox="0 0 19 19" fill="none"><rect x="2" y="2" width="15" height="11" rx="2" stroke="rgba(189,208,255,.6)" stroke-width="1.4"/><path d="M6 17h7M9.5 13v4" stroke="rgba(189,208,255,.6)" stroke-width="1.4" stroke-linecap="round"/></svg></div><div class="svc-name">Webbdesign</div><div class="svc-desc">Sajter som stoppar scrollet. Vi designar upplevelser som konverterar besökare till kunder — vackert och strategiskt.</div><div class="svc-tags"><span class="svc-tag">Landing pages</span><span class="svc-tag">Företagssajter</span><span class="svc-tag">Portfolios</span></div></div>
+      <div class="glass svc-card rv d1"><div class="svc-arr"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1 9L9 1M9 1H3M9 1v6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div><div class="svc-n">02</div><div class="svc-ico"><svg width="19" height="19" viewBox="0 0 19 19" fill="none"><path d="M3 5h13M3 9h8M3 13h5" stroke="rgba(189,208,255,.6)" stroke-width="1.4" stroke-linecap="round"/><circle cx="15" cy="13" r="3" stroke="rgba(189,208,255,.6)" stroke-width="1.4"/></svg></div><div class="svc-name">E-handel</div><div class="svc-desc">Nätbutiker byggda för att sälja. Shopify, WooCommerce och custom — vi optimerar varje steg i köpflödet.</div><div class="svc-tags"><span class="svc-tag">Shopify</span><span class="svc-tag">WooCommerce</span><span class="svc-tag">Custom</span></div></div>
+      <div class="glass svc-card rv d2"><div class="svc-arr"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1 9L9 1M9 1H3M9 1v6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div><div class="svc-n">03</div><div class="svc-ico"><svg width="19" height="19" viewBox="0 0 19 19" fill="none"><path d="M4 6.5L2 9.5l2 3M15 6.5l2 3-2 3M10 3.5l-2 10" stroke="rgba(189,208,255,.6)" stroke-width="1.4" stroke-linecap="round"/></svg></div><div class="svc-name">Webb-app</div><div class="svc-desc">Komplexa digitala produkter som fungerar. React, Next.js och moderna stackar — byggt för att skala.</div><div class="svc-tags"><span class="svc-tag">React / Next.js</span><span class="svc-tag">SaaS</span><span class="svc-tag">Dashboards</span></div></div>
+      <div class="glass svc-card rv d1"><div class="svc-arr"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1 9L9 1M9 1H3M9 1v6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div><div class="svc-n">04</div><div class="svc-ico"><svg width="19" height="19" viewBox="0 0 19 19" fill="none"><path d="M9.5 2l2 5.5H17l-4.5 3.3 1.7 5.2-4.7-3.4-4.7 3.4 1.7-5.2L2 7.5h5.5z" stroke="rgba(189,208,255,.6)" stroke-width="1.4" stroke-linejoin="round"/></svg></div><div class="svc-name">SEO & CRO</div><div class="svc-desc">Trafik är ingenting utan konvertering. Vi optimerar för sökmotorer och användare — mätbara resultat.</div><div class="svc-tags"><span class="svc-tag">Teknisk SEO</span><span class="svc-tag">A/B-test</span><span class="svc-tag">Analytics</span></div></div>
+      <div class="glass svc-card rv d2"><div class="svc-arr"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1 9L9 1M9 1H3M9 1v6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div><div class="svc-n">05</div><div class="svc-ico"><svg width="19" height="19" viewBox="0 0 19 19" fill="none"><circle cx="9.5" cy="9.5" r="6.5" stroke="rgba(189,208,255,.6)" stroke-width="1.4"/><path d="M9.5 6.5v3l2 2" stroke="rgba(189,208,255,.6)" stroke-width="1.4" stroke-linecap="round"/></svg></div><div class="svc-name">Varumärke</div><div class="svc-desc">Identiteter som fastnar. Logo, typografi, färgsystem och guidelines — allt du behöver för att äga din marknad.</div><div class="svc-tags"><span class="svc-tag">Logo</span><span class="svc-tag">Design system</span><span class="svc-tag">Guidelines</span></div></div>
+      <div class="glass svc-card rv d3"><div class="svc-arr"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1 9L9 1M9 1H3M9 1v6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></div><div class="svc-n">06</div><div class="svc-ico"><svg width="19" height="19" viewBox="0 0 19 19" fill="none"><rect x="2" y="5" width="6" height="6" rx="1.5" stroke="rgba(189,208,255,.6)" stroke-width="1.4"/><rect x="11" y="2" width="6" height="6" rx="1.5" stroke="rgba(189,208,255,.6)" stroke-width="1.4"/><rect x="11" y="11" width="6" height="6" rx="1.5" stroke="rgba(189,208,255,.6)" stroke-width="1.4"/></svg></div><div class="svc-name">Underhåll</div><div class="svc-desc">Vi försvinner inte efter lansering. Löpande support, uppdateringar och förbättringar — din långsiktiga partner.</div><div class="svc-tags"><span class="svc-tag">Support</span><span class="svc-tag">Hosting</span><span class="svc-tag">Uppdateringar</span></div></div>
+    </div>
+  </section>
+
+  <!-- NUMBERS -->
+  <section class="section" style="padding-top:0">
+    <div class="nums-glass rv">
+      <div class="nitem"><div class="nval" id="n1">0<sup>+</sup></div><div class="nlbl">Projekt levererade</div></div>
+      <div class="nitem"><div class="nval" id="n2">0<sup>%</sup></div><div class="nlbl">Nöjda kunder</div></div>
+      <div class="nitem"><div class="nval" id="n3">0<sup>v</sup></div><div class="nlbl">Snitt leveranstid</div></div>
+      <div class="nitem"><div class="nval" id="n4">0<sup>★</sup></div><div class="nlbl">Google-betyg</div></div>
+    </div>
+  </section>
+
+  <!-- WORK -->
+  <section class="section" id="arbete" style="padding-top:0">
+    <div class="sec-head"><div><div class="sec-kick">Utvalda projekt</div><h2 class="sec-title rv">Vårt <em>arbete</em></h2></div><a href="#" class="sec-lnk">Se alla →</a></div>
+    <div class="work-rows rv">
+      <div class="wrow"><div class="wn">01</div><div class="wname">Nordic Fitness Co.</div><div class="wtags"><span class="wtag">E-handel</span><span class="wtag">Shopify</span></div><div class="wyr">2025</div></div>
+      <div class="wrow"><div class="wn">02</div><div class="wname">Maison Noir Hårsalong</div><div class="wtags"><span class="wtag">Webbdesign</span><span class="wtag">Varumärke</span></div><div class="wyr">2025</div></div>
+      <div class="wrow"><div class="wn">03</div><div class="wname">Volta Restaurant Group</div><div class="wtags"><span class="wtag">Webb-app</span><span class="wtag">Bokning</span></div><div class="wyr">2024</div></div>
+      <div class="wrow"><div class="wn">04</div><div class="wname">Stenmark Fastigheter</div><div class="wtags"><span class="wtag">Webbdesign</span><span class="wtag">SEO</span></div><div class="wyr">2024</div></div>
+      <div class="wrow"><div class="wn">05</div><div class="wname">Bloom Skincare</div><div class="wtags"><span class="wtag">E-handel</span><span class="wtag">Varumärke</span></div><div class="wyr">2024</div></div>
+    </div>
+  </section>
+
+  <!-- PROCESS -->
+  <section class="section" id="process" style="padding-top:0">
+    <div class="sec-kick">Hur vi jobbar</div>
+    <h2 class="sec-title rv" style="margin-bottom:64px;">Idé till lansering<br><em>på 4 veckor</em></h2>
+    <div class="proc-grid">
+      <div class="glass pc rv"><div class="pc-step">01</div><div class="pc-ico"><svg width="17" height="17" viewBox="0 0 17 17" fill="none"><path d="M8.5 2C8.5 2 4 5 4 9.5a4.5 4.5 0 0 0 9 0C13 5 8.5 2 8.5 2Z" stroke="rgba(189,208,255,.6)" stroke-width="1.4" fill="none"/></svg></div><div class="pc-ttl">Discovery</div><div class="pc-txt">Vi lyssnar, analyserar och förstår ditt mål. En djupgående brief ger oss allt vi behöver.</div></div>
+      <div class="glass pc rv d1"><div class="pc-step">02</div><div class="pc-ico"><svg width="17" height="17" viewBox="0 0 17 17" fill="none"><rect x="2" y="2" width="13" height="13" rx="2.5" stroke="rgba(189,208,255,.6)" stroke-width="1.4"/><path d="M5.5 8.5h6M8.5 5.5v6" stroke="rgba(189,208,255,.6)" stroke-width="1.4" stroke-linecap="round"/></svg></div><div class="pc-ttl">Design</div><div class="pc-txt">Wireframes och fullständiga designkoncept. Du godkänner varje detalj innan vi kodar.</div></div>
+      <div class="glass pc rv d2"><div class="pc-step">03</div><div class="pc-ico"><svg width="17" height="17" viewBox="0 0 17 17" fill="none"><path d="M4 6l-2 2.5 2 2.5M13 6l2 2.5-2 2.5M9.5 3.5l-2 10" stroke="rgba(189,208,255,.6)" stroke-width="1.4" stroke-linecap="round"/></svg></div><div class="pc-ttl">Utveckling</div><div class="pc-txt">Ren, snabb och sökmotorvänlig kod. Moderna teknologier, testat på alla enheter.</div></div>
+      <div class="glass pc rv d3"><div class="pc-step">04</div><div class="pc-ico"><svg width="17" height="17" viewBox="0 0 17 17" fill="none"><path d="M2.5 8.5l4 4 8-7" stroke="rgba(189,208,255,.6)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="pc-ttl">Lansering</div><div class="pc-txt">Sömlös lansering med full support. Vi följer upp och finjusterar tills resultaten talar.</div></div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIAL -->
+  <section class="section" style="padding-top:0">
+    <div class="tp rv">
+      <div class="sec-kick" style="margin-bottom:36px;">Vad kunder säger</div>
+      <p class="tq" id="tQ">"Websday levererade en sajt som <span>ökade våra leads med 240%</span> på tre månader. Det är inte bara design — det är strategi som faktiskt fungerar."</p>
+      <div class="ta"><div class="tav" id="tA">M</div><div><div class="tn" id="tN">Maria Söderström</div><div class="tr" id="tR">VD, Nordic Fitness Co. · Stockholm</div></div></div>
+      <div class="tnav"><button class="tbtn" id="tP"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M8.5 2L5 6.5l3.5 4.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></button><button class="tbtn" id="tN2"><svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M4.5 2L8 6.5 4.5 11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></button></div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="section" id="priser" style="padding-top:0">
+    <div class="sec-kick">Priser</div>
+    <h2 class="sec-title rv" style="margin-bottom:64px;">Transparent<br><em>prissättning</em></h2>
+    <div class="pgrid">
+      <div class="glass pcard rv"><div class="pbadge">Starter</div><div class="pname">Launch</div><div class="pamnt">29 900<small> kr</small></div><div class="pnote">Engångsbetalning · 2–3 veckor</div><div class="pdesc">Perfekt för nya företag som behöver en professionell närvaro snabbt.</div><div class="pdiv"></div><div class="pfeats"><div class="pfeat">5 undersidor</div><div class="pfeat">Mobilanpassad design</div><div class="pfeat">Grundläggande SEO</div><div class="pfeat">Kontaktformulär</div><div class="pfeat">1 månads support</div></div><a href="#kontakt" class="pbtn pbtn-o">Kom igång →</a></div>
+      <div class="glass pcard feat rv d1"><div class="pbadge">Populärast</div><div class="pname">Premium</div><div class="pamnt">59 900<small> kr</small></div><div class="pnote">Engångsbetalning · 3–4 veckor</div><div class="pdesc">Vårt mest populära paket för etablerade företag som vill dominera digitalt.</div><div class="pdiv"></div><div class="pfeats"><div class="pfeat">Obegränsat sidor</div><div class="pfeat">Custom design & animation</div><div class="pfeat">Avancerad SEO & CRO</div><div class="pfeat">CMS integration</div><div class="pfeat">3 månaders support</div><div class="pfeat">Varumärkesidentitet inkl.</div></div><a href="#kontakt" class="pbtn pbtn-i">Starta projekt →</a></div>
+      <div class="glass pcard rv d2"><div class="pbadge">Enterprise</div><div class="pname">Scale</div><div class="pamnt">Offert</div><div class="pnote">Anpassat · Löpande samarbete</div><div class="pdesc">För organisationer med komplexa behov och höga krav på digital närvaro.</div><div class="pdiv"></div><div class="pfeats"><div class="pfeat">Komplex webb-app</div><div class="pfeat">E-handel & integration</div><div class="pfeat">Dedikerat team</div><div class="pfeat">Löpande underhåll</div><div class="pfeat">Prioriterad support 24/7</div></div><a href="#kontakt" class="pbtn pbtn-o">Kontakta oss →</a></div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section" id="kontakt" style="padding-top:0">
+    <div class="cta-box rv">
+      <div class="cta-glow"></div>
+      <div class="cta-kick">Redo att ta nästa steg?</div>
+      <h2 class="cta-title">Bygg något du<br>är <em>stolt</em> över.</h2>
+      <p class="cta-sub">Vi har plats för 2 nya kunder i juni. Boka ett kostnadsfritt samtal — ingen säljpitch, bara en ärlig konversation.</p>
+      <div class="cta-acts">
+        <a href="mailto:info@websday.se" class="btn btn-w">Boka ett samtal <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 7h9M8 3.5l3.5 3.5L8 10.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></a>
+        <a href="tel:+46812345678" class="btn btn-g">08 123 45 678</a>
+      </div>
+      <p class="cta-fn">Eller maila: <a href="mailto:info@websday.se">info@websday.se</a> · Svarar inom 2 timmar</p>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer style="padding:0 64px 56px;position:relative;z-index:3;">
+    <div class="fpanel">
+      <div class="ftop">
+        <div>
+          <div class="flogo"><div class="lmark"><svg viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" rx="1.5" fill="rgba(189,208,255,.75)"/><rect x="8" y="1" width="5" height="5" rx="1.5" fill="rgba(189,208,255,.4)"/><rect x="1" y="8" width="5" height="5" rx="1.5" fill="rgba(189,208,255,.4)"/><rect x="8" y="8" width="5" height="5" rx="1.5" fill="rgba(189,208,255,.75)"/></svg></div>WEBSDAY</div>
+          <p class="fdesc">Vi designar och bygger webbplatser som syns, konverterar och växer med ditt företag. Stockholm-baserade, globalt tänkande.</p>
+          <div class="fsocs"><a href="#" class="fsoc">Ig</a><a href="#" class="fsoc">Li</a><a href="#" class="fsoc">Fb</a><a href="#" class="fsoc">X</a></div>
+        </div>
+        <div><div class="fct">Tjänster</div><ul class="flinks"><li><a href="#">Webbdesign</a></li><li><a href="#">E-handel</a></li><li><a href="#">Webb-app</a></li><li><a href="#">SEO & CRO</a></li><li><a href="#">Varumärke</a></li><li><a href="#">Underhåll</a></li></ul></div>
+        <div><div class="fct">Företaget</div><ul class="flinks"><li><a href="#">Om oss</a></li><li><a href="#">Projekt</a></li><li><a href="#">Process</a></li><li><a href="#">Priser</a></li><li><a href="#">Blogg</a></li><li><a href="#">Karriär</a></li></ul></div>
+        <div class="fcon"><div class="fct">Kontakt</div><p>Websday AB<br>Stockholm, Sverige</p><p style="margin-top:12px"><a href="mailto:info@websday.se">info@websday.se</a></p><p><a href="tel:+46812345678">08 123 45 678</a></p><p style="margin-top:12px;color:var(--muted)">Mån–Fre 09–18</p></div>
+      </div>
+      <div class="fbot"><p class="fcopy">© 2025 Websday AB · <a href="#" style="color:var(--muted);text-decoration:none">Integritetspolicy</a></p><p class="fcred">Designad & byggd av <span>Websday</span> — självklart.</p></div>
+    </div>
+  </footer>
+
+</div><!-- end main-content -->
+
+<script>
+// ══ CURSOR
+const cur = document.getElementById('cur'), crn = document.getElementById('crn');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; cur.style.left=mx+'px'; cur.style.top=my+'px'; });
+(function loop(){ rx+=(mx-rx)*.1; ry+=(my-ry)*.1; crn.style.left=rx+'px'; crn.style.top=ry+'px'; requestAnimationFrame(loop); })();
+document.querySelectorAll('a,button,.glass,.wrow,.showcase-card').forEach(el => {
+  el.addEventListener('mouseenter', () => cur.classList.add('on'));
+  el.addEventListener('mouseleave', () => cur.classList.remove('on'));
+});
+
+// ══ NAV
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => nav.classList.toggle('sc', window.scrollY > 50), { passive: true });
+
+// ══ MORPH
+const morphWords = ['varumärke','sajt','erbjudande','närvaro','berättelse'];
+let wi = 0;
+setInterval(() => {
+  wi = (wi+1) % morphWords.length;
+  const el = document.getElementById('mw');
+  el.style.opacity = '0'; el.style.transform = 'translateY(10px)';
+  setTimeout(() => {
+    el.textContent = morphWords[wi];
+    el.style.transition = 'opacity .4s ease, transform .4s cubic-bezier(.16,1,.3,1)';
+    el.style.opacity = '1'; el.style.transform = 'translateY(0)';
+  }, 280);
+}, 2800);
+
+// ══ SCROLL LAYERS
+const orbA = document.getElementById('orb-a');
+const orbB = document.getElementById('orb-b');
+const orbC = document.getElementById('orb-c');
+const dw1  = document.getElementById('dw1');
+const dw2  = document.getElementById('dw2');
+const dw3  = document.getElementById('dw3');
+
+let ticking = false;
+let scrollY = 0;
+
+window.addEventListener('scroll', () => {
+  scrollY = window.scrollY;
+  if (!ticking) {
+    requestAnimationFrame(updateLayers);
+    ticking = true;
+  }
+}, { passive: true });
+
+function updateLayers() {
+  const y = scrollY;
+
+  // Orbs — different speeds & directions
+  orbA.style.transform = `translateY(${y * 0.28}px) translateX(${y * -0.04}px)`;
+  orbB.style.transform = `translateY(${y * -0.18}px) translateX(${y * 0.05}px)`;
+  orbC.style.transform = `translateY(${y * 0.12}px) translateX(${y * 0.06}px)`;
+
+  // Drifting words — slow horizontal drift + vertical parallax
+  dw1.style.transform = `translateY(${y * 0.08}px) translateX(${y * -0.06}px)`;
+  dw2.style.transform = `translateY(${y * -0.1}px) translateX(${y * 0.05}px)`;
+  dw3.style.transform = `translateY(${y * 0.06}px) translateX(${y * -0.04}px)`;
+
+  // Ambient layers subtle parallax
+  document.querySelector('.amb-a').style.transform = `translateY(${y * 0.05}px)`;
+  document.querySelector('.amb-b').style.transform = `translateY(${y * -0.04}px)`;
+
+  ticking = false;
+}
+
+// ══ PARTICLE CANVAS
+const canvas = document.getElementById('particleCanvas');
+const ctx    = canvas.getContext('2d');
+let particles = [];
+let W, H;
+
+function resize() {
+  W = canvas.width  = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+function createParticles() {
+  particles = [];
+  const cols = Math.floor(W / 88);
+  const rows = Math.floor(H / 88);
+  for (let c = 0; c <= cols; c++) {
+    for (let r = 0; r <= rows; r++) {
+      if (Math.random() > 0.55) continue; // sparse
+      particles.push({
+        x: c * 88 + (Math.random() - .5) * 20,
+        y: r * 88 + (Math.random() - .5) * 20,
+        baseY: r * 88,
+        size: Math.random() * 1.2 + .3,
+        opacity: Math.random() * .4 + .08,
+        speed: Math.random() * .3 + .1,
+        phase: Math.random() * Math.PI * 2,
+      });
+    }
+  }
+}
+createParticles();
+window.addEventListener('resize', createParticles);
+
+let animFrame = 0;
+function drawParticles() {
+  animFrame++;
+  ctx.clearRect(0, 0, W, H);
+  const t = animFrame * 0.008;
+  const sy = scrollY;
+
+  particles.forEach(p => {
+    // Each particle has a slightly different parallax speed
+    const py = p.y + sy * p.speed * 0.15;
+    const wrappedY = ((py % H) + H) % H;
+
+    // Subtle breathing animation
+    const breath = Math.sin(t + p.phase) * .15 + .85;
+    const opacity = p.opacity * breath;
+
+    ctx.beginPath();
+    ctx.arc(p.x, wrappedY, p.size, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(189,208,255,${opacity})`;
+    ctx.fill();
+  });
+
+  requestAnimationFrame(drawParticles);
+}
+drawParticles();
+
+// ══ COUNTERS
+function countUp(el, target, sfx, fl=false) {
+  let s=0; const d=1800;
+  const f=ts=>{
+    if(!s) s=ts;
+    const p=Math.min((ts-s)/d,1), e=1-Math.pow(1-p,3);
+    const v=fl?(target*e).toFixed(1):Math.floor(target*e);
+    el.firstChild.nodeValue=v+sfx;
+    if(p<1) requestAnimationFrame(f);
+  };
+  requestAnimationFrame(f);
+}
+const nobs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      countUp(document.getElementById('n1'),147,'+');
+      countUp(document.getElementById('n2'),100,'%');
+      countUp(document.getElementById('n3'),4,'v');
+      countUp(document.getElementById('n4'),4.9,'★',true);
+      nobs.disconnect();
+    }
+  });
+},{threshold:.4});
+const ng=document.querySelector('.nums-glass');
+if(ng) nobs.observe(ng);
+
+// ══ REVEAL
+const ro = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('in'); });
+},{threshold:.08});
+document.querySelectorAll('.rv').forEach(el=>ro.observe(el));
+
+// ══ TESTIMONIALS
+const testis=[
+  {q:'"Websday levererade en sajt som <span>ökade våra leads med 240%</span> på tre månader. Det är inte bara design — det är strategi som faktiskt fungerar."',n:'Maria Söderström',r:'VD, Nordic Fitness Co. · Stockholm',a:'M'},
+  {q:'"Vi fick en <span>komplett e-handel på 3 veckor</span> som är vackrare och snabbare än vi vågat hoppas på. Professionellt från dag ett."',n:'Jonas Lindqvist',r:'Grundare, Bloom Skincare · Stockholm',a:'J'},
+  {q:'"Websday förstår att en hemsida ska <span>sälja, inte bara se bra ut</span>. Konverteringsgraden ökade 180% första månaden."',n:'Sara Eriksson',r:'CMO, Volta Restaurant Group · Göteborg',a:'S'}
+];
+let ti=0;
+function setT(i){
+  ti=(i+testis.length)%testis.length;
+  const t=testis[ti];
+  const ids=['tQ','tN','tA'];
+  ids.map(id=>document.getElementById(id)).forEach(el=>{el.style.opacity='0';el.style.transform='translateY(8px)';el.style.transition='opacity .25s,transform .25s';});
+  document.getElementById('tR').style.opacity='0';
+  setTimeout(()=>{
+    document.getElementById('tQ').innerHTML=t.q;
+    document.getElementById('tN').textContent=t.n;
+    document.getElementById('tR').textContent=t.r;
+    document.getElementById('tA').textContent=t.a;
+    [...ids.map(id=>document.getElementById(id)),document.getElementById('tR')].forEach(el=>{
+      el.style.opacity='1';el.style.transform='translateY(0)';el.style.transition='opacity .4s,transform .4s';
+    });
+  },260);
+}
+document.getElementById('tP')?.addEventListener('click',()=>setT(ti-1));
+document.getElementById('tN2')?.addEventListener('click',()=>setT(ti+1));
+setInterval(()=>setT(ti+1),6000);
+</script>
+</body>
+</html>
