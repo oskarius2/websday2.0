@@ -349,6 +349,75 @@ nav.sc {
 @keyframes sd { 0%{top:-100%;opacity:1} 100%{top:100%;opacity:0} }
 .s-lbl { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); writing-mode: vertical-rl; }
 
+/* ── SECTION SCROLL INDICATORS ── */
+/* Variant A — vertical double track */
+.si-vert {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  margin: 0 auto 56px; width: fit-content;
+}
+.si-track {
+  width: 1px; background: var(--gl2);
+  position: relative; overflow: hidden;
+}
+.si-track::after {
+  content: ''; position: absolute; top: -100%; left: 0;
+  width: 100%; height: 100%;
+  background: linear-gradient(to bottom, transparent, var(--ice2));
+  animation: sd 2s ease-in-out infinite;
+}
+.si-track-a { height: 52px; }
+.si-track-b { height: 36px; }
+.si-track-b::after { animation-delay: .5s; opacity: .5; }
+.si-lbl { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); margin: 4px 0; }
+
+/* Variant B — horizontal sweep */
+.si-horiz {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 56px;
+}
+.si-line {
+  width: 56px; height: 1px; background: var(--gl2);
+  position: relative; overflow: hidden; flex-shrink: 0;
+}
+.si-line::after {
+  content: ''; position: absolute; top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(to right, transparent, var(--ice2), transparent);
+  animation: siH 2.4s ease-in-out infinite;
+}
+.si-line-2 { animation-delay: .6s !important; opacity: .5; }
+@keyframes siH { 0%{left:-100%} 100%{left:100%} }
+.si-lbl-h { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
+
+/* Variant C — pulse dot */
+.si-pulse {
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  margin-bottom: 56px;
+}
+.si-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--ice2); flex-shrink: 0;
+  position: relative;
+  box-shadow: 0 0 8px rgba(130,170,255,.5);
+}
+.si-dot::before, .si-dot::after {
+  content: ''; position: absolute; inset: -5px;
+  border-radius: 50%; border: 1px solid rgba(189,208,255,.2);
+  animation: siPulse 2.6s ease-out infinite;
+}
+.si-dot::after { animation-delay: .9s; }
+@keyframes siPulse { 0%{transform:scale(1);opacity:.5} 100%{transform:scale(4);opacity:0} }
+.si-pulse-track {
+  width: 1px; height: 44px; background: var(--gl2);
+  position: relative; overflow: hidden;
+}
+.si-pulse-track::after {
+  content: ''; position: absolute; top: -100%; left: 0;
+  width: 100%; height: 100%;
+  background: linear-gradient(to bottom, transparent, var(--ice2));
+  animation: sd 2s ease-in-out infinite;
+}
+
 /* ══════════════════════════════════════
    MARQUEE
 ══════════════════════════════════════ */
@@ -749,6 +818,13 @@ nav.sc {
     </div>
   </div>
 
+  <!-- SCROLL INDICATOR A -->
+  <div class="si-vert rv" style="margin-top:48px;padding-top:0;">
+    <div class="si-track si-track-a"></div>
+    <span class="si-lbl">Scrolla</span>
+    <div class="si-track si-track-b"></div>
+  </div>
+
   <!-- SHOWCASE -->
   <section class="showcase rv" id="showcase">
     <div class="sec-kick">Vad vi faktiskt levererar</div>
@@ -857,6 +933,13 @@ nav.sc {
     </div>
   </section>
 
+  <!-- SCROLL INDICATOR B -->
+  <div class="si-horiz rv" style="justify-content:center;margin:0 64px 0;">
+    <div class="si-line"></div>
+    <span class="si-lbl-h">Scrolla</span>
+    <div class="si-line si-line-2"></div>
+  </div>
+
   <!-- SERVICES -->
   <section class="section" id="tjanster">
     <div class="sec-head">
@@ -895,6 +978,12 @@ nav.sc {
     </div>
   </section>
 
+  <!-- SCROLL INDICATOR C -->
+  <div class="si-pulse rv" style="margin-left:64px;">
+    <div class="si-dot"></div>
+    <div class="si-pulse-track"></div>
+  </div>
+
   <!-- PROCESS -->
   <section class="section" id="process" style="padding-top:0">
     <div class="sec-kick">Hur vi jobbar</div>
@@ -922,9 +1011,9 @@ nav.sc {
     <div class="sec-kick">Priser</div>
     <h2 class="sec-title rv" style="margin-bottom:64px;">Transparent<br><em>prissättning</em></h2>
     <div class="pgrid">
-      <div class="glass pcard rv"><div class="pbadge">Starter</div><div class="pname">Launch</div><div class="pamnt">29 900<small> kr</small></div><div class="pnote">Engångsbetalning · 2–3 veckor</div><div class="pdesc">Perfekt för nya företag som behöver en professionell närvaro snabbt.</div><div class="pdiv"></div><div class="pfeats"><div class="pfeat">5 undersidor</div><div class="pfeat">Mobilanpassad design</div><div class="pfeat">Grundläggande SEO</div><div class="pfeat">Kontaktformulär</div><div class="pfeat">1 månads support</div></div><a href="#kontakt" class="pbtn pbtn-o">Kom igång →</a></div>
-      <div class="glass pcard feat rv d1"><div class="pbadge">Populärast</div><div class="pname">Premium</div><div class="pamnt">59 900<small> kr</small></div><div class="pnote">Engångsbetalning · 3–4 veckor</div><div class="pdesc">Vårt mest populära paket för etablerade företag som vill dominera digitalt.</div><div class="pdiv"></div><div class="pfeats"><div class="pfeat">Obegränsat sidor</div><div class="pfeat">Custom design & animation</div><div class="pfeat">Avancerad SEO & CRO</div><div class="pfeat">CMS integration</div><div class="pfeat">3 månaders support</div><div class="pfeat">Varumärkesidentitet inkl.</div></div><a href="#kontakt" class="pbtn pbtn-i">Starta projekt →</a></div>
-      <div class="glass pcard rv d2"><div class="pbadge">Enterprise</div><div class="pname">Scale</div><div class="pamnt">Offert</div><div class="pnote">Anpassat · Löpande samarbete</div><div class="pdesc">För organisationer med komplexa behov och höga krav på digital närvaro.</div><div class="pdiv"></div><div class="pfeats"><div class="pfeat">Komplex webb-app</div><div class="pfeat">E-handel & integration</div><div class="pfeat">Dedikerat team</div><div class="pfeat">Löpande underhåll</div><div class="pfeat">Prioriterad support 24/7</div></div><a href="#kontakt" class="pbtn pbtn-o">Kontakta oss →</a></div>
+      <div class="glass pcard rv"><div class="pbadge">Kom igång</div><div class="pname">Bas</div><div class="pamnt">9 900<small> kr</small></div><div class="pnote">Engångsbetalning · 1–2 veckor</div><div class="pdesc">För dig som vill ha en skarp, professionell sajt snabbt och utan krångel.</div><div class="pdiv"></div><div class="pfeats"><div class="pfeat">Upp till 5 sidor</div><div class="pfeat">Mobilanpassad design</div><div class="pfeat">Kontaktformulär</div><div class="pfeat">Grundläggande SEO</div><div class="pfeat">30 dagars support</div></div><a href="#kontakt" class="pbtn pbtn-o">Kom igång →</a></div>
+      <div class="glass pcard feat rv d1"><div class="pbadge">Vanligast för företag</div><div class="pname">Standard</div><div class="pamnt">13 900<small> kr</small></div><div class="pnote">Engångsbetalning · 2–3 veckor</div><div class="pdesc">Det vi rekommenderar för de flesta företag — komplett, strategisk och byggd för att konvertera.</div><div class="pdiv"></div><div class="pfeats"><div class="pfeat">Obegränsat sidor</div><div class="pfeat">Custom design & animation</div><div class="pfeat">SEO-optimerad struktur</div><div class="pfeat">CMS så du kan redigera själv</div><div class="pfeat">90 dagars support</div><div class="pfeat">Google Analytics uppsatt</div></div><a href="#kontakt" class="pbtn pbtn-i">Starta projekt →</a></div>
+      <div class="glass pcard rv d2"><div class="pbadge">Fullt paket</div><div class="pname">Max</div><div class="pamnt">21 000<small> kr</small></div><div class="pnote">Engångsbetalning · 3–4 veckor</div><div class="pdesc">För dig som vill ha allt — varumärke, webb och strategi i ett. Inget kompromissas.</div><div class="pdiv"></div><div class="pfeats"><div class="pfeat">Allt i Standard</div><div class="pfeat">Logotyp & varumärkesidentitet</div><div class="pfeat">Avancerade animationer</div><div class="pfeat">Prioriterad support 6 månader</div><div class="pfeat">Löpande CRO-uppföljning</div></div><a href="#kontakt" class="pbtn pbtn-o">Kontakta oss →</a></div>
     </div>
   </section>
 
